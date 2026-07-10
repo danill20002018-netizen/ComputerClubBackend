@@ -10,4 +10,10 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj" />
+      <ProjectReference Include="..\AuthService.Domain\AuthService.Domain.csproj" />
+      <ProjectReference Include="..\AuthService.Storage\AuthService.Storage.csproj" />
+    </ItemGroup>
+
 </Project>
