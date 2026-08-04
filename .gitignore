@@ -9,6 +9,8 @@
 *.userosscache
 *.sln.docstates
 
+
+
 # Rider
 .idea/
 *.sln.iml

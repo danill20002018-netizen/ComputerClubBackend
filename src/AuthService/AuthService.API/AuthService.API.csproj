@@ -26,14 +26,16 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
     </ItemGroup>
 
-    <!-- <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
-    </ItemGroup> -->
-
     <ItemGroup>
       <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj" />
       <ProjectReference Include="..\AuthService.Domain\AuthService.Domain.csproj" />
-      <ProjectReference Include="..\AuthService.Storage\AuthService.Storage.csproj" />
+      <ProjectReference Include="..\AuthService.Shared\AuthService.Shared.csproj" />
+        <ProjectReference Include="..\AuthService.Shared\AuthService.Shared.csproj" />
+        <ProjectReference Include="..\AuthService.Storage\AuthService.Storage.csproj" />
     </ItemGroup>
+
+    <!-- <ItemGroup>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+    </ItemGroup> -->
 
 </Project>
