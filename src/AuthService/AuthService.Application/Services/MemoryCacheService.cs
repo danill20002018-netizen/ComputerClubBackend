@@ -22,13 +22,13 @@ public sealed class MemoryCacheService: IMemoryCacheService
         _options = options.Value;
         _cachePolicies = new()
         {
+            
             [typeof(User)] = ToMemoryCacheOptions(_options.User),
             [typeof(Session)] = ToMemoryCacheOptions(_options.Session),
             [typeof(Role)] = ToMemoryCacheOptions(_options.Role),
             [typeof(UserRole)] = ToMemoryCacheOptions(_options.UserRole)
         };
     }
-
     public async Task<TResult> GetOrCreateAsync<TEntity, TResult>(QueryExecutionContext<TEntity> context, Func<Task<TResult>> factory)
     {
         //
