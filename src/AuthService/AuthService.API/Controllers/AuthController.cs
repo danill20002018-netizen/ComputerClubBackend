@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers;
 
+[ApiController]
+[Route("api/")]
 public class AuthController: ControllerBase
 {
     private readonly IAuthService _authService;
@@ -21,10 +23,10 @@ public class AuthController: ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUserRequest fromBody,  HttpContext httpContext,CancellationToken cancellationToken)
+    public async Task<IActionResult> Login([FromBody] LoginUserRequest fromBody,CancellationToken cancellationToken)
     {
-        var userAgent =  httpContext.Request.Headers.UserAgent;
-        var ipAddress = httpContext.GetClientIpAddress();
+        var userAgent =  HttpContext.Request.Headers.UserAgent;
+        var ipAddress = HttpContext.GetClientIpAddress();
         //
         var result = await _authService.Login(new()
         {
@@ -34,91 +36,70 @@ public class AuthController: ControllerBase
             UserAgent = userAgent,
             IpAddress = ipAddress!=null? ipAddress.ToString() : null,
             //
-            HttpCookies=httpContext.Request.GetCookies()
+            HttpCookies=HttpContext.Request.GetCookies()
         }, cancellationToken);
-        _cookieService.Apply(httpContext.Response, result.Cookies);
+        _cookieService.Apply(HttpContext.Response, result.Cookies);
         //
         return Ok(result.Data);
     }
-    
-    
-    // public static IEndpointRouteBuilder UseAuthEndpoints(this IEndpointRouteBuilder app)
-    // {
-    //     var group = app.MapGroup("api/v1/auth");
-    //  
-    //     //login
-    //     group.MapPost("/login", async ([FromBody] LoginUserRequest requestBody, HttpResponse response, HttpContext httpContext, IAuthService authService, HttpRequest httpRequest, IHttpCookieService cookieService, CancellationToken cancellationToken) =>
-    //     {
-    //         var userAgent =  httpRequest.Headers.UserAgent;
-    //         var ipAddress = httpContext.GetClientIpAddress();
-    //         //
-    //         var result = await authService.Login(new()
-    //         {
-    //             Login = requestBody.Login,
-    //             Password = requestBody.Password,
-    //             //
-    //             UserAgent = userAgent,
-    //             IpAddress = ipAddress!=null? ipAddress.ToString() : null,
-    //             //
-    //             HttpCookies=httpRequest.GetCookies()
-    //         }, cancellationToken);
-    //         cookieService.Apply(response, result.Cookies);
-    //
-    //     });
-    //     
-    //     //register
-    //     group.MapPost("/register", async ([FromBody] RegisterUserRequest requestBody, HttpContext httpContext, IAuthService authService, HttpRequest request, CancellationToken cancellationToken) =>
-    //     {
-    //         var userAgent =  request.Headers.UserAgent;
-    //         var ipAddress = httpContext.GetClientIpAddress();
-    //
-    //         var result = await authService.Register(new() {
-    //             Name = requestBody.UserName,
-    //             Password = requestBody.Password,
-    //             ConfirmPassword = requestBody.ConfirmPassword,
-    //             Email = requestBody.Email,
-    //             //
-    //             UserAgent = userAgent,
-    //             IpAddress = ipAddress!=null? ipAddress.ToString() :  null
-    //             
-    //         }, cancellationToken);
-    //     });
-    //     
-    //     //refresh token
-    //     group.MapPost("/refresh", async (HttpContext httpContext, IAuthService authService, HttpRequest httpRequest, CancellationToken cancellationToken) =>  
-    //     {
-    //         var userAgent =  httpRequest.Headers.UserAgent;
-    //         var ipAddress = httpContext.GetClientIpAddress();
-    //
-    //         var result = await authService.RefreshToken(new() {
-    //             UserAgent = userAgent,
-    //             IpAddress = ipAddress!=null? ipAddress.ToString() :  null,
-    //             //
-    //             HttpCookies = httpRequest.GetCookies()
-    //             
-    //         }, cancellationToken);
-    //     });
-    //
-    //     //logout for session with currently id
-    //     group.MapDelete("/session/{id}", async ( [FromRoute] Guid id, HttpContext httpContext, IAuthService authService, HttpRequest httpRequest, CancellationToken cancellationToken) =>
-    //     {
-    //         var result= await authService.Logout(new() {
-    //             SessionIdToDelete = id,
-    //             //
-    //             HttpCookies = httpRequest.GetCookies()
-    //             
-    //         }, cancellationToken);
-    //     });
-    //     
-    //     //logout for session device from what endpoint calling
-    //     group.MapDelete("/session", async ( [FromRoute] Guid id, HttpContext httpContext, IAuthService authService, HttpRequest httpRequest, CancellationToken cancellationToken) =>
-    //     {
-    //         var result = await authService.Logout(new() {
-    //             HttpCookies = httpRequest.GetCookies()
-    //             
-    //         }, cancellationToken);
-    //     });
-    //     return app;
-    //     
-    // }
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterUserRequest fromBody,CancellationToken cancellationToken)
+    {
+        var userAgent =  HttpContext.Request.Headers.UserAgent;
+        var ipAddress = HttpContext.GetClientIpAddress();
+        
+        var result = await _authService.Register(new() {
+            Name = fromBody.UserName,
+            Password = fromBody.Password,
+            ConfirmPassword = fromBody.ConfirmPassword,
+            Email = fromBody.Email,
+            //
+            UserAgent = userAgent,
+            IpAddress = ipAddress!=null? ipAddress.ToString() :  null
+            
+        }, cancellationToken);
+        _cookieService.Apply(HttpContext.Response, result.Cookies);
+        //
+        return Ok(result.Data);
+    }
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
+    {
+        var userAgent =  HttpContext.Request.Headers.UserAgent;
+        var ipAddress = HttpContext.GetClientIpAddress();
+        
+        var result = await _authService.RefreshToken(new() {
+            HttpCookies = HttpContext.Request.GetCookies(),
+            //
+            UserAgent = userAgent,
+            IpAddress = ipAddress!=null? ipAddress.ToString() :  null
+            
+        }, cancellationToken);
+        _cookieService.Apply(HttpContext.Response, result.Cookies);
+        //
+        return Ok(result.Data);
+    }
+    [HttpDelete("logout/{id}")]
+    public async Task<IActionResult> Logout([FromRoute] Guid id,CancellationToken cancellationToken)
+    {
+        var result= await _authService.Logout(new() {
+                SessionIdToDelete = id,
+                //
+                HttpCookies = HttpContext.Request.GetCookies()
+            }, cancellationToken);
+        _cookieService.Apply(HttpContext.Response, result.Cookies);
+        //
+        return Ok(result.Data);
+    }
+    [HttpDelete("logout")]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        var result = await _authService.Logout(new() {
+            HttpCookies = HttpContext.Request.GetCookies()
+                
+            }, cancellationToken);
+        _cookieService.Apply(HttpContext.Response, result.Cookies);
+        //
+        return Ok(result.Data);
+    }
 }
